@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Tutorial</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        nav {
+            background: #333;
+            color: #fff;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+        }
+
+        nav a {
+            color: #fff;
+            margin: 5px 0;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            background: #555;
+            transform: scale(1.05);
+        }
+
+        .content {
+            margin-left: 220px;
+            padding: 20px;
+            width: calc(100% - 220px);
+        }
+
+        section {
+            padding: 20px 0;
+        }
+
+        h1, h2 {
+            color: #007acc;
+        }
+
+        code {
+            background: #eaeaea;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        /* Media Queries for responsiveness */
+
+        @media (max-width: 768px) {
+            nav {
+                width: 150px; /* Reduce nav width on tablet screens */
+            }
+
+            .content {
+                margin-left: 170px; /* Adjust content margin */
+                width: calc(100% - 170px);
+            }
+
+            nav a {
+                font-size: 14px; /* Smaller font size for tablet */
+                padding: 8px;
+            }
+
+            .content {
+                padding: 15px; /* Reduced padding for tablet */
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav {
+                width: 100%; /* Full width navigation on mobile */
+                height: auto; /* Allow nav to expand as needed */
+                position: relative; /* Change position to relative */
+                flex-direction: row; /* Stack the nav links horizontally */
+                overflow-x: auto; /* Allow horizontal scrolling if needed */
+                padding: 10px 0;
+            }
+
+            nav a {
+                font-size: 12px; /* Smaller font size for mobile */
+                padding: 8px;
+            }
+
+            .content {
+                margin-left: 0; /* Remove left margin */
+                width: 100%; /* Full width content */
+                padding: 10px; /* Reduced padding for mobile */
+            }
+
+            nav a {
+                display: inline-block;
+                margin: 5px;
+                text-align: center; /* Center links on mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#intro">Introduction</a>
+        <a href="#basics">Basics</a>
+        <a href="#variables">Variables</a>
+        <a href="#functions">Functions</a>
+        <a href="#advanced">Advanced Concepts</a>
+        <a href="#promises">Promises</a>
+        <a href="#async-await">Async/Await</a>
+        <a href="#events">Events</a>
+        <a href="#dom">DOM Manipulation</a>
+        <a href="#es6">ES6 Features</a>
+        <a href="#debugging">Debugging</a>
+    </nav>
+    <div class="content">
+        <section id="intro">
+            <h2>Introduction</h2>
+            <p>JavaScript is a versatile programming language primarily used for web development. It allows developers to create interactive and dynamic web pages.</p>
+            <p>Example:</p>
+            <pre><code>&lt;script&gt;
+alert('Hello, World!');
+&lt;/script&gt;</code></pre>
+        </section>
+        <section id="basics">
+            <h2>Basics</h2>
+            <h3 id="variables">Variables</h3>
+            <p>Use <code>let</code>, <code>const</code>, or <code>var</code> to declare variables.</p>
+            <pre><code>let name = "John";
+const age = 30;
+var isDeveloper = true;</code></pre>
+            <h3 id="functions">Functions</h3>
+            <p>Functions allow you to encapsulate reusable logic.</p>
+            <pre><code>function greet(name) {
+    return `Hello, ${name}`;
+}
+console.log(greet("Alice"));</code></pre>
+        </section>
+        <section id="advanced">
+            <h2>Advanced Concepts</h2>
+            <h3 id="promises">Promises</h3>
+            <p>Promises are used for asynchronous programming.</p>
+            <pre><code>const fetchData = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => resolve("Data fetched!"), 2000);
+    });
+};
+fetchData().then(console.log);</code></pre>
+            <h3 id="async-await">Async/Await</h3>
+            <p>Simplified syntax for working with promises:</p>
+            <pre><code>async function getData() {
+    const data = await fetchData();
+    console.log(data);
+}
+getData();</code></pre>
+        </section>
+        <section id="events">
+            <h2>Events</h2>
+            <p>JavaScript events allow you to execute code when something happens on the web page.</p>
+            <pre><code>document.getElementById("myButton").addEventListener("click", function() {
+    alert("Button clicked!");
+});</code></pre>
+        </section>
+        <section id="dom">
+            <h2>DOM Manipulation</h2>
+            <p>The Document Object Model (DOM) represents the structure of a web page. JavaScript can manipulate the DOM to change content, styles, and structure dynamically.</p>
+            <pre><code>document.getElementById("myDiv").innerText = "Hello, DOM!";</code></pre>
+        </section>
+        <section id="es6">
+            <h2>ES6 Features</h2>
+            <p>ES6 introduced several new features, such as template literals, arrow functions, and classes.</p>
+            <pre><code>const add = (a, b) => a + b;
+console.log(add(2, 3));</code></pre>
+        </section>
+        <section id="debugging">
+            <h2>Debugging</h2>
+            <p>Debugging is the process of identifying and fixing errors in your code. Use tools like <code>console.log</code> and browser developer tools.</p>
+            <pre><code>console.log("Debugging in progress...");</code></pre>
+        </section>
+    </div>
+</body>
+</html>
