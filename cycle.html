@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roshan's Drawing Board</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #topnav {
+      height: 60px;
+      background-color: #4caf50;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    #mainContainer {
+      display: flex;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    #toolbar {
+      width: 150px;
+      background-color: #f4f4f4;
+      border-right: 2px solid #ccc;
+      overflow-y: auto;
+      padding: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: #888 #f4f4f4;
+    }
+
+    #toolbar::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #toolbar::-webkit-scrollbar-thumb {
+      background-color: #888;
+      border-radius: 4px;
+    }
+
+    #toolbar::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
+    }
+
+    #toolbar button, #toolbar input[type="color"], #toolbar input[type="range"] {
+      margin: 10px 0;
+      padding: 8px;
+      width: 120px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: white;
+      cursor: pointer;
+    }
+
+    #toolbar button:hover {
+      background-color: #ddd;
+    }
+
+    #eraserTool {
+      background-image: url('https://img.icons8.com/material-rounded/24/000000/eraser.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 20px 20px;
+      height: 40px;
+    }
+
+    #penTool {
+      background-image: url('https://img.icons8.com/ios-filled/50/000000/pen.png');
+      background-repeat: no-repeat;
+      background-position: left center;
+      background-size: 20px 20px;
+      height: 40px;
+      text-align: left;
+      padding-left: 30px;
+    }
+
+    #brushTool {
+      background-image: url('https://img.icons8.com/ios-filled/50/000000/paint-brush.png');
+      background-repeat: no-repeat;
+      background-position: left center;
+      background-size: 20px 20px;
+      height: 40px;
+      text-align: left;
+      padding-left: 30px;
+    }
+
+    #canvasContainer {
+      flex-grow: 1;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f9f9f9;
+    }
+
+    canvas {
+      border: 1px solid #ccc;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+
+<div id="topnav">
+  Roshan's Drawing Board
+</div>
+
+<div id="mainContainer">
+  <div id="toolbar">
+    <button id="penTool">Pen</button>
+    <button id="brushTool">Brush</button>
+    <button id="eraserTool" title="Eraser"></button>
+    <label>
+      Pen/Brush Color:
+      <input type="color" id="colorPicker" value="#000000">
+    </label>
+    <label>
+      Background Color:
+      <input type="color" id="backgroundColorPicker" value="#ffffff">
+    </label>
+    <label>
+      Size:
+      <input type="range" id="sizePicker" min="1" max="50" value="5">
+    </label>
+    <button id="undoButton">Undo</button>
+    <button id="redoButton">Redo</button>
+    <button id="downloadPNG">Download PNG</button>
+    <button id="downloadJPG">Download JPG</button>
+    <button id="downloadPDF">Download PDF</button>
+    <button id="newCanvas">New Canvas</button>
+  </div>
+
+  <div id="canvasContainer">
+    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('drawingCanvas');
+  const ctx = canvas.getContext('2d');
+  const colorPicker = document.getElementById('colorPicker');
+  const sizePicker = document.getElementById('sizePicker');
+  const backgroundColorPicker = document.getElementById('backgroundColorPicker');
+  let currentTool = 'pen';
+  let drawing = false;
+  let undoStack = [];
+  let redoStack = [];
+  let lastPos = null; // To store the last mouse position
+
+  // Initialize canvas background color
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Event listeners for canvas
+  canvas.addEventListener('mousedown', startDrawing);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stopDrawing);
+  canvas.addEventListener('mouseleave', stopDrawing);
+
+  // Toolbar event listeners
+  document.getElementById('penTool').addEventListener('click', () => setTool('pen'));
+  document.getElementById('brushTool').addEventListener('click', () => setTool('brush'));
+  document.getElementById('eraserTool').addEventListener('click', () => setTool('eraser'));
+  document.getElementById('undoButton').addEventListener('click', undo);
+  document.getElementById('redoButton').addEventListener('click', redo);
+  document.getElementById('downloadPNG').addEventListener('click', () => downloadImage('image/png'));
+  document.getElementById('downloadJPG').addEventListener('click', () => downloadImage('image/jpeg'));
+  document.getElementById('downloadPDF').addEventListener('click', downloadPDF);
+  document.getElementById('newCanvas').addEventListener('click', createNewCanvas);
+  backgroundColorPicker.addEventListener('change', setBackgroundColor);
+
+  function saveState() {
+    undoStack.push(canvas.toDataURL());
+    redoStack = []; // Clear redo stack
+  }
+
+  function undo() {
+    if (undoStack.length > 0) {
+      redoStack.push(canvas.toDataURL());
+      const imgData = new Image();
+      imgData.src = undoStack.pop();
+      imgData.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(imgData, 0, 0);
+      };
+    }
+  }
+
+  function redo() {
+    if (redoStack.length > 0) {
+      undoStack.push(canvas.toDataURL());
+      const imgData = new Image();
+      imgData.src = redoStack.pop();
+      imgData.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(imgData, 0, 0);
+      };
+    }
+  }
+
+  function setTool(tool) {
+    currentTool = tool;
+    canvas.style.cursor = currentTool === 'eraser' ? 'not-allowed' : 'crosshair';
+  }
+
+  function startDrawing(e) {
+    drawing = true;
+    lastPos = { x: e.offsetX, y: e.offsetY };
+    ctx.beginPath();
+    ctx.moveTo(lastPos.x, lastPos.y);
+    ctx.strokeStyle = currentTool === 'eraser' ? 'rgba(0, 0, 0, 0)' : colorPicker.value;
+    ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+    ctx.lineWidth = sizePicker.value;
+  }
+
+  function draw(e) {
+    if (!drawing) return;
+    const currentPos = { x: e.offsetX, y: e.offsetY };
+    ctx.lineTo(currentPos.x, currentPos.y);
+    ctx.stroke();
+    lastPos = currentPos;
+  }
+
+  function stopDrawing() {
+    if (!drawing) return;
+    drawing = false;
+    ctx.closePath();
+    saveState();
+  }
+
+  function setBackgroundColor() {
+    const bgColor = backgroundColorPicker.value;
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function createNewCanvas() {
+    const newCanvas = document.createElement('canvas');
+    newCanvas.width = 800;
+    newCanvas.height = 600;
+    ctx = newCanvas.getContext('2d');
+    canvas.replaceWith(newCanvas);
+    canvas = newCanvas;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function downloadImage(type) {
+    const link = document.createElement('a');
+    link.download = `drawing.${type === 'image/png' ? 'png' : 'jpg'}`;
+    link.href = canvas.toDataURL(type);
+    link.click();
+  }
+
+  function downloadPDF() {
+    const canvasData = canvas.toDataURL('image/png');
+    const pdfWindow = window.open('');
+    pdfWindow.document.write(
+      `<img src="${canvasData}" width="100%" height="100%">`
+    );
+  }
+</script>
+
+</body>
+</html>
